@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "expt"
+version = "1.0.0"
+description = "."
+readme = "README.md"
+authors = [{ name = "Rishabh Ranjan", email = "rishabhranjan0207@gmail.com" }]
+license = { file = "LICENSE" }
+dependencies = [
+	"matplotlib",
+	"pandas",
+	"seaborn",
+	"torch",
+	"tqdm",
+	"wandb",
+]
