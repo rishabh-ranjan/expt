@@ -46,46 +46,47 @@ class PathDict(dict):
         return val
 
 
-def run(fn):
-    @functools.wraps(fn)
-    def wrap(**kwargs):
-        print(f"{kwargs=}")
-        frozen_kwargs = kwargs.copy()
+def run(main):
+    @functools.wraps(main)
+    def wrap(args):
+        args_dict = args.__dict__
+        print(f"args={args_dict}")
 
         timestamp = str(time.time_ns())
 
-        store_dir = Path(kwargs["runs_dir"]) / timestamp
+        store_dir = Path(args_dict["runs_dir"]) / timestamp
         store = PathDict(store_dir)
-        store["info"] = kwargs
 
-        wandb_run = None
-        wandb_project = kwargs.get("wandb_project", None)
+        store["info"] = {
+                "script_path": str(Path(main.__code__.co_filename).resolve()),
+                **args_dict,
+                }
+
+        wandb_project = args_dict.get("wandb_project", None)
         if wandb_project:
-            wandb_name = kwargs.get("wandb_name", None)
+            wandb_name = args_dict.get("wandb_name", None)
             if wandb_name:
                 wandb_name = f"{wandb_name}-{timestamp[:3]}"
             wandb_run = wandb.init(
                 project=wandb_project,
                 name=wandb_name,
-                config={**kwargs},
+                config=args_dict,
             )
             print(f"{wandb_run.name=}")
-            kwargs["wandb_run"] = wandb_run
 
-        kwargs["store"] = store
-
-        fn(**kwargs)
+        main(store, args)
 
         store["info"] = {
             **store["info"],
             "done": True,
         }
+
         diff = {
             k: v
             for k, v in store["info"].items()
-            if k not in frozen_kwargs or v != frozen_kwargs[k]
+            if k not in args_dict or v != args_dict[k]
         }
-        print(f"info/kwargs={diff}")
+        print(f"info\\args={diff}")
 
     return wrap
 
