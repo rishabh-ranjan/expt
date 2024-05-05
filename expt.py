@@ -58,9 +58,9 @@ def run(main):
         store = PathDict(store_dir)
 
         store["info"] = {
-                "script_path": str(Path(main.__code__.co_filename).resolve()),
-                **args_dict,
-                }
+            "script_path": str(Path(main.__code__.co_filename).resolve()),
+            **args_dict,
+        }
 
         wandb_project = args_dict.get("wandb_project", None)
         if wandb_project:
@@ -104,9 +104,9 @@ def scan(runs_dir):
         if not info.get("done", False):
             print(f"!rm -r {store_dir}  # not done")
             continue
-        if info.get("dev", True):
-            print(f"!rm -r {store_dir}  # dev")
-            continue
+        # if info.get("dev", True):
+        #     print(f"!rm -r {store_dir}  # dev")
+        #     continue
         out[store_dir.name] = info
     out = pd.DataFrame(out).T
     return out
