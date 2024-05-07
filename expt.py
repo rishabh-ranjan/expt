@@ -65,6 +65,8 @@ def run(main):
 
         main(store, args)
 
+        wandb.finish()
+
         store["info"] = {
             **store["info"],
             "done": True,

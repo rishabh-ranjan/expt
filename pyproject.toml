@@ -10,8 +10,12 @@ readme = "README.md"
 authors = [{ name = "Rishabh Ranjan", email = "rishabhranjan0207@gmail.com" }]
 license = { file = "LICENSE" }
 dependencies = [
+	"hiredis",
 	"matplotlib",
 	"pandas",
+	"redis[hiredis]",
+	"rq",
+	"rq-dashboard",
 	"seaborn",
 	"torch",
 	"tqdm",
