@@ -49,30 +49,19 @@ class PathDict(dict):
 def run(main):
     @functools.wraps(main)
     def wrap(args):
-        args_dict = args.__dict__
-        print(f"args={args_dict}")
+        print(f"args={args.__dict__}")
 
         timestamp = str(time.time_ns())
 
-        store_dir = Path(args_dict["runs_dir"]) / timestamp
+        store_dir = f"/dfs/scratch1/ranjanr/{args.project}/{timestamp}"
         store = PathDict(store_dir)
 
         store["info"] = {
             "script_path": str(Path(main.__code__.co_filename).resolve()),
-            **args_dict,
+            **args.__dict__,
         }
 
-        wandb_project = args_dict.get("wandb_project", None)
-        if wandb_project:
-            wandb_name = args_dict.get("wandb_name", None)
-            if wandb_name:
-                wandb_name = f"{wandb_name}-{timestamp[:3]}"
-            wandb_run = wandb.init(
-                project=wandb_project,
-                name=wandb_name,
-                config=args_dict,
-            )
-            print(f"{wandb_run.name=}")
+        wandb.init(project=args.project, name=timestamp, config=args)
 
         main(store, args)
 
@@ -84,7 +73,7 @@ def run(main):
         diff = {
             k: v
             for k, v in store["info"].items()
-            if k not in args_dict or v != args_dict[k]
+            if k not in args.__dict__ or v != args.__dict__[k]
         }
         print(f"info\\args={diff}")
 
@@ -104,9 +93,6 @@ def scan(runs_dir):
         if not info.get("done", False):
             print(f"!rm -r {store_dir}  # not done")
             continue
-        # if info.get("dev", True):
-        #     print(f"!rm -r {store_dir}  # dev")
-        #     continue
         out[store_dir.name] = info
     out = pd.DataFrame(out).T
     return out
