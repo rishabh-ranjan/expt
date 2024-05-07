@@ -61,7 +61,7 @@ def run(main):
             **args.__dict__,
         }
 
-        wandb.init(project=args.project.replace("_", "/"), name=timestamp, config=args)
+        wandb.init(project=args.project.replace("/", "_"), name=timestamp, config=args)
 
         main(store, args)
 
