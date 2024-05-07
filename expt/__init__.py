@@ -46,6 +46,9 @@ class PathDict(dict):
         return val
 
 
+PROJECT_ROOT = "/dfs/scratch1/ranjanr"
+
+
 def run(main):
     @functools.wraps(main)
     def wrap(args):
@@ -53,7 +56,7 @@ def run(main):
 
         timestamp = str(time.time_ns())
 
-        store_dir = f"/dfs/scratch1/ranjanr/{args.project}/{timestamp}"
+        store_dir = f"{PROJECT_ROOT}/{args.project}/{timestamp}"
         store = PathDict(store_dir)
 
         store["info"] = {
@@ -82,10 +85,10 @@ def run(main):
     return wrap
 
 
-def scan(runs_dir):
-    runs_dir = Path(runs_dir)
+def scan(project):
+    project_dir = f"{PROJECT_ROOT}/{project}"
     out = {}
-    for store_dir in tqdm(sorted(runs_dir.glob("*"))):
+    for store_dir in tqdm(sorted(Path(project_dir).glob("*"))):
         store = PathDict(store_dir)
         try:
             info = store["info"]
