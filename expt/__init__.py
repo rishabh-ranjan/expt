@@ -55,6 +55,7 @@ def run(main):
         print(f"args={args.__dict__}")
 
         timestamp = str(time.time_ns())
+        print(f"{timestamp=}")
 
         store_dir = f"{PROJECT_ROOT}/{args.project}/{timestamp}"
         store = PathDict(store_dir)
