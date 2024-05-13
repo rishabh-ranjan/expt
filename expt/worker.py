@@ -51,11 +51,16 @@ def main(args):
                 f.write(f"{worker_name}\n")
                 subprocess.run(task_str, shell=True, stdout=f, stderr=f, check=True)
 
-        except (subprocess.CalledProcessError, KeyboardInterrupt):
+        except subprocess.CalledProcessError:
             Path(f"{queue_dir}/failed").mkdir(exist_ok=True)
             failed_path = active_path.rename(f"{queue_dir}/failed/{task_name}")
             print(f"failed task {task_name}")
-            time.sleep(SLEEP)
+
+        except KeyboardInterrupt:
+            Path(f"{queue_dir}/failed").mkdir(exist_ok=True)
+            failed_path = active_path.rename(f"{queue_dir}/failed/{task_name}")
+            print(f"failed task {task_name}")
+            break
 
         else:
             Path(f"{queue_dir}/done").mkdir(exist_ok=True)
