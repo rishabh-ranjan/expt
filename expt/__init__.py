@@ -46,7 +46,7 @@ class PathDict(dict):
         return val
 
 
-PROJECT_ROOT = "/dfs/scratch1/ranjanr"
+DFS_ROOT = "/dfs/scratch1/ranjanr"
 
 
 def run(main):
@@ -54,10 +54,10 @@ def run(main):
     def wrap(args):
         print(f"args={args.__dict__}")
 
-        timestamp = str(time.time_ns())
+        timestamp = time.time_ns()
         print(f"{timestamp=}")
 
-        store_dir = f"{PROJECT_ROOT}/{args.project}/{timestamp}"
+        store_dir = f"{DFS_ROOT}/stores/{args.project}/{timestamp}"
         store = PathDict(store_dir)
 
         store["info"] = {
@@ -87,7 +87,7 @@ def run(main):
 
 
 def scan(project):
-    project_dir = f"{PROJECT_ROOT}/{project}"
+    project_dir = f"{DFS_ROOT}/stores/{project}"
     out = {}
     for store_dir in tqdm(sorted(Path(project_dir).glob("*"))):
         store = PathDict(store_dir)
@@ -102,3 +102,16 @@ def scan(project):
         out[store_dir.name] = info
     out = pd.DataFrame(out).T
     return out
+
+
+def submit(project, cmd):
+    assert "\n" not in cmd
+
+    timestamp = time.time_ns()
+    submit_path = f"{DFS_ROOT}/queues/{project}/ready/{timestamp}"
+    Path(submit_path).parent.mkdir(parents=True, exist_ok=True)
+
+    with open(submit_path, "w") as f:
+        f.write(f"{cmd}\n")
+
+    print(f"submitted at {submit_path}")
