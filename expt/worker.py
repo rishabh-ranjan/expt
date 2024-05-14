@@ -17,7 +17,7 @@ def main(args):
     worker_name = f"{hostname}:{pid}:{gpus}"
     print(f"{worker_name=}")
 
-    queue_dir = f"{expt.DFS_ROOT}/queues/{args.project}"
+    queue_dir = f"{expt.QUEUE_ROOT}/{args.queue}"
     print(f"{queue_dir=}")
 
     while True:
@@ -70,6 +70,6 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--project", type=str, default="relbench/2024-05-13_dev")
+    parser.add_argument("--queue", type=str, default="relbench/2024-05-13_dev")
     args = parser.parse_args()
     main(args)

@@ -7,7 +7,8 @@ import pandas as pd
 import seaborn as sns
 import torch
 from tqdm.auto import tqdm
-import wandb
+
+# import wandb
 
 
 sns.set_theme(context="paper", style="whitegrid", palette="colorblind", font_scale=0.75)
@@ -46,7 +47,8 @@ class PathDict(dict):
         return val
 
 
-DFS_ROOT = "/dfs/scratch1/ranjanr"
+PROJECT_ROOT = "/dfs/scratch1/ranjanr/stores"
+QUEUE_ROOT = "/dfs/scratch1/ranjanr/tasks"
 
 
 def run(main):
@@ -57,7 +59,7 @@ def run(main):
         timestamp = str(time.time_ns())
         print(f"{timestamp=}")
 
-        store_dir = f"{DFS_ROOT}/stores/{args.project}/{timestamp}"
+        store_dir = f"{PROJECT_ROOT}/{args.project}/{timestamp}"
         store = PathDict(store_dir)
 
         store["info"] = {
@@ -65,11 +67,11 @@ def run(main):
             **args.__dict__,
         }
 
-        wandb.init(project=args.project.replace("/", "_"), name=timestamp, config=args)
+        # wandb.init(project=args.project.replace("/", "_"), name=timestamp, config=args)
 
         main(store, args)
 
-        wandb.finish()
+        # wandb.finish()
 
         store["info"] = {
             **store["info"],
@@ -87,7 +89,7 @@ def run(main):
 
 
 def scan(project):
-    project_dir = f"{DFS_ROOT}/stores/{project}"
+    project_dir = f"{PROJECT_ROOT}/{project}"
     out = {}
     for store_dir in tqdm(sorted(Path(project_dir).glob("*"))):
         store = PathDict(store_dir)
@@ -104,11 +106,11 @@ def scan(project):
     return out
 
 
-def submit(project, cmd):
+def submit(queue, cmd):
     assert "\n" not in cmd
 
     timestamp = str(time.time_ns())
-    submit_path = f"{DFS_ROOT}/queues/{project}/ready/{timestamp}"
+    submit_path = f"{QUEUE_ROOT}/{queue}/ready/{timestamp}"
     Path(submit_path).parent.mkdir(parents=True, exist_ok=True)
 
     with open(submit_path, "w") as f:
