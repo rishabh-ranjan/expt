@@ -47,8 +47,8 @@ class PathDict(dict):
         return val
 
 
-PROJECT_ROOT = "/dfs/scratch1/ranjanr/stores"
-QUEUE_ROOT = "/dfs/scratch1/ranjanr/tasks"
+PROJECT_ROOT = "/lfs/local/0/ranjanr/stores"
+QUEUE_ROOT = "/lfs/local/0/ranjanr/tasks"
 
 
 def run(main):

@@ -15,10 +15,9 @@ def main(args):
     pid = os.getpid()
     gpus = os.environ.get("CUDA_VISIBLE_DEVICES")
     worker_name = f"{hostname}:{pid}:{gpus}"
-    print(f"{worker_name=}")
 
     queue_dir = f"{expt.QUEUE_ROOT}/{args.queue}"
-    print(f"{queue_dir=}")
+    print(f"[{worker_name}] queue at {queue_dir}")
 
     while True:
         iter_ = Path(f"{queue_dir}/ready").iterdir()
@@ -39,37 +38,37 @@ def main(args):
             time.sleep(SLEEP)
             continue
 
-        print(f"acquired task {task_name}")
-        print(f"tail -f {active_path}")
+        print(f"[{worker_name}] acquired task {task_name}")
+        print(f"tail -f -n +1 {active_path}")
 
         with open(active_path, "r") as f:
             task_str = f.readline().strip()
-            print(f" + {task_str}")
+            print(f"[{worker_name}] task: {task_str}")
 
         try:
             with open(active_path, "a", buffering=1) as f:
-                f.write(f"{worker_name}\n")
+                f.write(f"\n=== {worker_name} ===\n")
                 subprocess.run(task_str, shell=True, stdout=f, stderr=f, check=True)
 
         except subprocess.CalledProcessError:
             Path(f"{queue_dir}/failed").mkdir(exist_ok=True)
             failed_path = active_path.rename(f"{queue_dir}/failed/{task_name}")
-            print(f"failed task {task_name}")
+            print(f"[{worker_name}] failed task {task_name}")
 
         except KeyboardInterrupt:
             Path(f"{queue_dir}/failed").mkdir(exist_ok=True)
             failed_path = active_path.rename(f"{queue_dir}/failed/{task_name}")
-            print(f"failed task {task_name}")
+            print(f"[{worker_name}] failed task {task_name}")
             break
 
         else:
             Path(f"{queue_dir}/done").mkdir(exist_ok=True)
             done_path = active_path.rename(f"{queue_dir}/done/{task_name}")
-            print(f"done task {task_name}")
+            print(f"[{worker_name}] done task {task_name}")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--queue", type=str, default="relbench/2024-05-13_dev")
+    parser.add_argument("--queue", type=str, default="relbench/2024-05-14_dev")
     args = parser.parse_args()
     main(args)
