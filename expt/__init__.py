@@ -116,4 +116,4 @@ def submit(queue, cmd):
     with open(submit_path, "w") as f:
         f.write(f"{cmd}\n")
 
-    print(f"submitted at {submit_path}")
+    # print(f"submitted at {submit_path}")
